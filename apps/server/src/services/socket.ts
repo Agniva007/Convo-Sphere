@@ -2,16 +2,16 @@ import { Server } from "socket.io";
 import Redis from 'ioredis';
 
 const pub = new Redis({
-    host: 'redis-18df24b9-agnivadas007-79b8.a.aivencloud.com',
-    port: 10768,
-    username: 'default',
-    password: 'AVNS_I8kQ-E0vJrLIUHpMHk_'
+    host: '',
+    port: 0,
+    username: '',
+    password: ''
 });
 const sub = new Redis({
-    host: 'redis-18df24b9-agnivadas007-79b8.a.aivencloud.com',
-    port: 10768,
-    username: 'default',
-    password: 'AVNS_I8kQ-E0vJrLIUHpMHk_'
+    host: '',
+    port: 0,
+    username: '',
+    password: ''
 });
 
 
@@ -46,6 +46,7 @@ class SocketService  {
 
         sub.on('message', (channel, message) => {
             if (channel==="MESSAGES") {
+                console.log("New Message Frome Redis", message);
                 io.emit("message", message);
             }
         });
