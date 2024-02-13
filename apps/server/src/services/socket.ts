@@ -1,0 +1,59 @@
+import { Server } from "socket.io";
+import Redis from 'ioredis';
+
+const pub = new Redis({
+    host: 'redis-18df24b9-agnivadas007-79b8.a.aivencloud.com',
+    port: 10768,
+    username: 'default',
+    password: 'AVNS_I8kQ-E0vJrLIUHpMHk_'
+});
+const sub = new Redis({
+    host: 'redis-18df24b9-agnivadas007-79b8.a.aivencloud.com',
+    port: 10768,
+    username: 'default',
+    password: 'AVNS_I8kQ-E0vJrLIUHpMHk_'
+});
+
+
+class SocketService  {
+    private _io: Server;
+
+    constructor(){
+        console.log("Init Socket Server...");
+        this._io = new Server({
+            cors: {
+                allowedHeaders: ['*'],
+                origin: '*'
+            }
+        });
+
+        sub.subscribe("MESSAGES");
+    }
+
+    public initListener(){
+        const io = this._io;
+        console.log("Init Socket Listeners...");
+        io.on('connect', socket => {
+            console.log(`New Socket Connected`, socket.id);
+
+            socket.on("event:message", async ({ message }: { message: string}) => {
+                console.log("New Message Received", message);
+
+                //publish this msg to redis
+                await pub.publish('MESSAGES', JSON.stringify({ message }));
+            })
+        });
+
+        sub.on('message', (channel, message) => {
+            if (channel==="MESSAGES") {
+                io.emit("message", message);
+            }
+        });
+    }
+
+    get io(){
+        return this._io;
+    }
+}
+
+export default SocketService;
